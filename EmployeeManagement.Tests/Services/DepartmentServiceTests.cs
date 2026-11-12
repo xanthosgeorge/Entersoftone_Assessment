@@ -1,5 +1,5 @@
 ﻿
-using EmployeeManagement.Api.Exceptions;
+using EmployeeManagement.Application.Exceptions;
 using EmployeeManagement.Application.DTOs.Departments;
 using EmployeeManagement.Application.Services;
 using EmployeeManagement.Domain.Entities;

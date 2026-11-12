@@ -1,0 +1,6 @@
+@Entersoftone_Assessment.Api_HostAddress = http://localhost:5053
+
+GET {{Entersoftone_Assessment.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

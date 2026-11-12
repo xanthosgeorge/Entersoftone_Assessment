@@ -15,7 +15,8 @@ builder.Services.AddOpenApi();
 // Configure database persistence.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 builder.Services.AddScoped<IApplicationDbContext>(
     provider => provider.GetRequiredService<ApplicationDbContext>());
@@ -45,6 +46,7 @@ if (app.Environment.IsDevelopment())
     var context = scope.ServiceProvider
         .GetRequiredService<ApplicationDbContext>();
 
+    await context.Database.MigrateAsync();
     await DatabaseSeeder.SeedAsync(context);
 
     app.MapOpenApi();

@@ -10,7 +10,6 @@ using EmployeeManagement.Api.ExceptionHandling;
 var builder = WebApplication.CreateBuilder(args);
 
 // Register API services.
-builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Configure database persistence.
@@ -27,7 +26,7 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 
 
-// Replace the existing AddControllers registration.
+// Configure controllers and JSON serialization.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

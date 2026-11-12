@@ -3,7 +3,7 @@ using EmployeeManagement.Application.DTOs.Employees;
 using EmployeeManagement.Application.Interfaces;
 using EmployeeManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using EmployeeManagement.Api.Exceptions;
+using EmployeeManagement.Application.Exceptions;
 
 namespace EmployeeManagement.Application.Services;
 

@@ -5,6 +5,7 @@ using EmployeeManagement.Infrastructure.Persistence;
 using EmployeeManagement.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using EmployeeManagement.Api.ExceptionHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,9 +31,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
     });
-
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 var app = builder.Build();
-
+app.UseExceptionHandler();
 // Configure development services.
 if (app.Environment.IsDevelopment())
 {

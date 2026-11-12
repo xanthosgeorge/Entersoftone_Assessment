@@ -56,6 +56,10 @@ public class EmployeesController : ControllerBase
     /// Creates a new employee.
     /// </summary>
     [HttpPost]
+    [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<EmployeeDto>> Create(
         [FromBody] CreateEmployeeRequest request,
         CancellationToken cancellationToken)

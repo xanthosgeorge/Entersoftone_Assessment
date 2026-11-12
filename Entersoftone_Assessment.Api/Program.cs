@@ -24,6 +24,7 @@ builder.Services.AddScoped<IApplicationDbContext>(
 // Register application services.
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 
 // Replace the existing AddControllers registration.

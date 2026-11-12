@@ -15,11 +15,11 @@ The application provides employee, department, and project management functional
 
 ## Architecture
 
-The solution follows a layered architecture inspired by Clean Architecture, separating domain models, application logic, database infrastructure, and API endpoints.
+The solution follows a layered architecture inspired by Clean Architecture, separating domain models, application logic, database infrastructure, and API endpoints. The Application layer uses EF Core abstractions through `IApplicationDbContext`; it does not depend on the Infrastructure project.
 
 ```text
 Entersoftone_Assessment
-├── EmployeeManagement.Api
+├── Entersoftone_Assessment.Api
 │   ├── Controllers
 │   ├── ExceptionHandling
 │   └── Program.cs
@@ -38,12 +38,11 @@ Entersoftone_Assessment
 │   ├── Configurations
 │   ├── Persistence
 │   ├── Migrations
-│   └── Seeding
+│   └── Seeder
 │
 └── EmployeeManagement.Tests
     ├── Helpers
-    ├── Services
-    └── Validation
+    └── Services
 ```
 
 ### Layer Responsibilities
@@ -177,15 +176,13 @@ The API uses centralized exception handling with ASP.NET Core `IExceptionHandler
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/xanthosgeorge/Entersoftone_Assessment.git
 cd Entersoftone_Assessment
 ```
 
-Replace `<repository-url>` with the GitHub repository URL.
-
 ### 2. Configure the Database Connection
 
-Configure `DefaultConnection` in `EmployeeManagement.Api/appsettings.Development.json`:
+Configure `DefaultConnection` in `Entersoftone_Assessment.Api/appsettings.Development.json` (or override the existing value in `appsettings.json`). The server name below is an example, not a fixed requirement:
 
 ```json
 {
@@ -201,10 +198,10 @@ For environments requiring credentials, use environment variables or .NET User S
 
 ### 3. Apply Database Migrations
 
-From the solution directory, run:
+From the solution directory, run (install the matching `dotnet-ef` tool if necessary):
 
 ```bash
-dotnet ef database update --project EmployeeManagement.Infrastructure --startup-project EmployeeManagement.Api
+dotnet ef database update --project EmployeeManagement.Infrastructure --startup-project Entersoftone_Assessment.Api
 ```
 
 This creates or updates the database using the included EF Core migrations.
@@ -212,7 +209,7 @@ This creates or updates the database using the included EF Core migrations.
 ### 4. Run the API
 
 ```bash
-dotnet run --project EmployeeManagement.Api --launch-profile https
+dotnet run --project Entersoftone_Assessment.Api --launch-profile https
 ```
 
 Open the Swagger UI at the HTTPS address configured in `launchSettings.json`, followed by `/swagger`.
@@ -236,7 +233,7 @@ The initial dataset includes:
 - 3 sample projects.
 - Employee-to-project assignments.
 
-Seeding checks existing records to avoid duplicate seed data during subsequent executions.
+Seeding checks existing records to avoid duplicate seed data during subsequent executions. In Development, deleted sample records may be recreated on the next application startup.
 
 
 ## Automated Testing
@@ -268,13 +265,7 @@ All 8 tests run against isolated SQLite in-memory databases without requiring a 
 
 ### Run Tests
 
-From the solution directory:
-
-```bash
-dotnet test EmployeeManagement.Tests/EmployeeManagement.Tests.csproj
-```
-
-Tests use isolated temporary SQLite databases and do not modify the development SQL Server database.
+From the solution directory, `dotnet test` runs the suite using the `global.json` Microsoft.Testing.Platform configuration. Tests use isolated temporary SQLite databases and do not modify the development SQL Server database.
 
 ## Design Decisions
 

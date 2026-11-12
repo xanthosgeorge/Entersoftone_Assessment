@@ -1,5 +1,6 @@
 using EmployeeManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using EmployeeManagement.Infrastructure.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    await DatabaseSeeder.SeedAsync(context);
     app.MapOpenApi();
 }
 

@@ -1,0 +1,629 @@
+{
+  "info": {
+    "name": "Entersoftone Assessment | Employee Management API",
+    "_postman_id": "cffbf7a9-4d55-4b4c-9c30-bb83d3fd65ff",
+    "description": "API collection for the Entersoftone .NET 10 assessment. Run folders 01 → 04 in order to create, read, update and delete your own test resources. IDs are captured into collection variables automatically after each POST. Folder 05 contains optional independent negative tests. Uses https://localhost:7020 by default; run `dotnet dev-certs https --trust` if the local certificate is untrusted. The test sequence deletes the records it creates and does not modify the seeded resources.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Setup / Create",
+      "description": "Creates dependent entities and captures their IDs",
+      "item": [
+        {
+          "name": "01 - Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Departments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Assessment QA {{$timestamp}}\",\n  \"description\": \"Created by Postman Collection\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "if (pm.response.code === 201) {",
+                  "  const result = pm.response.json();",
+                  "  pm.test(\"Created ID is a GUID\", () => pm.expect(result.id).to.match(/^[a-f0-9-]{36}$/i));",
+                  "  if (result.id) pm.collectionVariables.set(\"departmentId\", result.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Assessment Project {{$timestamp}}\",\n  \"description\": \"Created by Postman Collection\",\n  \"startDate\": \"2026-11-01T00:00:00\",\n  \"endDate\": \"2027-03-31T00:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "if (pm.response.code === 201) {",
+                  "  const result = pm.response.json();",
+                  "  pm.test(\"Created ID is a GUID\", () => pm.expect(result.id).to.match(/^[a-f0-9-]{36}$/i));",
+                  "  if (result.id) pm.collectionVariables.set(\"projectId\", result.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Employees",
+            "description": "Run after creating department and project; references their collection variables.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Assessment\",\n  \"lastName\": \"Tester\",\n  \"email\": \"assessment.{{$timestamp}}@example.com\",\n  \"status\": \"Active\",\n  \"hireDate\": \"2026-11-01T00:00:00\",\n  \"notes\": \"Created by Postman Collection\",\n  \"departmentId\": \"{{departmentId}}\",\n  \"projectIds\": [\n    \"{{projectId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "if (pm.response.code === 201) {",
+                  "  const result = pm.response.json();",
+                  "  pm.test(\"Created ID is a GUID\", () => pm.expect(result.id).to.match(/^[a-f0-9-]{36}$/i));",
+                  "  if (result.id) pm.collectionVariables.set(\"employeeId\", result.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Employees",
+      "description": "List, retrieve, update, then delete test employee",
+      "item": [
+        {
+          "name": "04 - List Employees (search & pagination)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Employees?search={{search}}&page={{page}}&pageSize={{pageSize}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "pm.test(\"Returns an array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Get Employee by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Employees/{{employeeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "pm.test(\"ID matches saved employee\", () => pm.expect(pm.response.json().id.toLowerCase()).to.eql(pm.collectionVariables.get(\"employeeId\").toLowerCase()));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Update Employee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Employees/{{employeeId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Assessment\",\n  \"lastName\": \"Tester Updated\",\n  \"email\": \"assessment.updated.{{$timestamp}}@example.com\",\n  \"status\": \"Active\",\n  \"hireDate\": \"2026-11-01T00:00:00\",\n  \"notes\": \"Updated by Postman Collection\",\n  \"departmentId\": \"{{departmentId}}\",\n  \"projectIds\": [\n    \"{{projectId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Employees/{{employeeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Projects",
+      "description": "List, retrieve, update, then delete test project",
+      "item": [
+        {
+          "name": "08 - List Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "pm.test(\"Returns an array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - Get Project by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects/{{projectId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 - Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects/{{projectId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Assessment Project Updated {{$timestamp}}\",\n  \"description\": \"Updated by Postman Collection\",\n  \"startDate\": \"2026-11-01T00:00:00\",\n  \"endDate\": \"2027-04-30T00:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 - Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects/{{projectId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Departments",
+      "description": "List, retrieve, update, then delete test department",
+      "item": [
+        {
+          "name": "12 - List Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Departments"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);",
+                  "pm.test(\"Returns an array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 - Get Department by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Departments/{{departmentId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON response\", () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 - Update Department",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Departments/{{departmentId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Assessment Department Updated {{$timestamp}}\",\n  \"description\": \"Updated by Postman Collection\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 - Delete Department",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Departments/{{departmentId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Negative Tests (optional)",
+      "description": "Validation and not-found checks",
+      "item": [
+        {
+          "name": "400 - Invalid Pagination",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Employees?page=0&pageSize=10"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 - Unknown Project",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects/00000000-0000-0000-0000-000000000000"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Invalid Project Date Range",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/Projects",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid Date Range\",\n  \"startDate\": \"2027-05-01T00:00:00\",\n  \"endDate\": \"2027-04-01T00:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7020",
+      "type": "string"
+    },
+    {
+      "key": "departmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employeeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "search",
+      "value": "Assessment",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "pageSize",
+      "value": "10",
+      "type": "string"
+    }
+  ]
+}

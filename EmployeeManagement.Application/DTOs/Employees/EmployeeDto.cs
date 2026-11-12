@@ -1,7 +1,4 @@
 ﻿using EmployeeManagement.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EmployeeManagement.Application.DTOs.Employees
 {

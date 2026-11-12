@@ -1,4 +1,4 @@
-﻿namespace EmployeeManagement.Api.Exceptions
+﻿namespace EmployeeManagement.Application.Exceptions
 {
     /// <summary>
     /// Represents a conflict with an existing application resource.

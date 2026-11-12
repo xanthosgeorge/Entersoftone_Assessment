@@ -6,7 +6,7 @@ The application provides employee, department, and project management functional
 
 ## Technology Stack
 
-- **.NET 10** — ASP.NET Core Web API
+- **ASP.NET Core 10** — ASP.NET Core Web API
 - **Entity Framework Core 10** — ORM and database migrations
 - **SQL Server 2022** — Relational database
 - **Swagger UI / OpenAPI** — API documentation and testing
@@ -190,7 +190,7 @@ Configure `DefaultConnection` in `EmployeeManagement.Api/appsettings.Development
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost\\SQLSERVER2022;Database=EntersoftoneAssessmentDb;Trusted_Connection=True;TrustServerCertificate=True"
+    "DefaultConnection": "Server=localhost;Database=EntersoftoneAssessmentDb;Trusted_Connection=True;TrustServerCertificate=True"
   }
 }
 ```
@@ -238,11 +238,22 @@ The initial dataset includes:
 
 Seeding checks existing records to avoid duplicate seed data during subsequent executions.
 
+
 ## Automated Testing
 
-The solution includes automated tests using **xUnit v3** and **SQLite In-Memory**.
+The solution includes 8 automated tests using **xUnit v3** and **SQLite In-Memory**, covering business rules, service operations, and relational database behavior.
 
-Tests focus on business rules, service operations, and relational behavior.
+### Test Runner
+
+The project uses **Microsoft.Testing.Platform**, configured through `global.json`, to support test execution with the .NET 10 SDK.
+
+Tests can be executed directly from the solution directory:
+
+```bash
+dotnet test
+```
+
+All 8 tests run against isolated SQLite in-memory databases without requiring a SQL Server instance.
 
 ### Covered Scenarios
 

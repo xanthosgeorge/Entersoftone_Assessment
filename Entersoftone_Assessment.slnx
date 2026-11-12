@@ -2,5 +2,6 @@
   <Project Path="EmployeeManagement.Application/EmployeeManagement.Application.csproj" />
   <Project Path="EmployeeManagement.Domain/EmployeeManagement.Domain.csproj" />
   <Project Path="EmployeeManagement.Infrastructure/EmployeeManagement.Infrastructure.csproj" />
+  <Project Path="EmployeeManagement.Tests/EmployeeManagement.Tests.csproj" Id="aa166ed3-1fbc-459b-81b0-ca23a85cf7c6" />
   <Project Path="Entersoftone_Assessment.Api/EmployeeManagement.Api.csproj" />
 </Solution>

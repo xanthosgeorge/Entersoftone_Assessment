@@ -166,74 +166,74 @@ The API uses centralized exception handling with ASP.NET Core `IExceptionHandler
 
 ## Getting Started
 
-### Prerequisites
+### Quick Start with Docker (recommended)
 
-- .NET 10 SDK
-- SQL Server 2022 or another compatible SQL Server instance
-- Visual Studio with ASP.NET Core development support, or a compatible IDE
-- EF Core tooling for database migrations
+Docker Compose runs the **.NET 10 API** and **SQL Server 2022** together. You do not need to install SQL Server or configure a database connection manually.
 
-### 1. Clone the Repository
+Prerequisite: Docker Desktop (or an equivalent Docker Engine with Compose support).
 
 ```bash
 git clone https://github.com/xanthosgeorge/Entersoftone_Assessment.git
 cd Entersoftone_Assessment
+cp .env.example .env
 ```
 
-### 2. Configure the Database Connection
+On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.
 
-Configure `DefaultConnection` in `Entersoftone_Assessment.Api/appsettings.Development.json` (or override the existing value in `appsettings.json`). The server name below is an example, not a fixed requirement:
+Open the new `.env` file and replace the example value of `MSSQL_SA_PASSWORD` with a **strong, unique password for your local development database**. Never commit `.env`; it is excluded by `.gitignore`. The password is used by Docker Compose to configure both SQL Server and the API, so there is no need to share credentials.
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=EntersoftoneAssessmentDb;Trusted_Connection=True;TrustServerCertificate=True"
-  }
-}
+```bash
+docker compose up --build -d
+docker compose ps
 ```
 
-Update the server name and authentication settings according to your local SQL Server configuration.
+When the database is healthy and the API is running, open **http://localhost:8080/swagger**. In the Development environment, the application applies the included EF Core migrations and seeds sample records automatically.
 
-For environments requiring credentials, use environment variables or .NET User Secrets rather than committing passwords to source control.
+Useful commands:
 
-### 3. Apply Database Migrations
+```bash
+docker compose logs --tail=100 api
+docker compose down
+```
 
-From the solution directory, run (install the matching `dotnet-ef` tool if necessary):
+`docker compose down` preserves the database volume. `docker compose down -v` **deletes the development database volume and its data**.
+
+**Apple Silicon:** The official SQL Server 2022 container is an x64 image and may require amd64 emulation; that setup is not officially supported by Microsoft. It was tested for this assessment but is not guaranteed to work on every ARM machine. See [Docker setup details](DOCKER_SETUP.md).
+
+### Run Locally without Docker
+
+Prerequisites: .NET 10 SDK, a compatible SQL Server instance, and EF Core CLI tooling (if running the migration command manually).
+
+Configure the `DefaultConnection` setting for your **own local SQL Server instance**, preferably through `.NET User Secrets` or an environment variable instead of committing machine-specific settings or credentials. Database connection details are intentionally not included in this README.
+
+From the solution directory:
 
 ```bash
 dotnet ef database update --project EmployeeManagement.Infrastructure --startup-project Entersoftone_Assessment.Api
-```
-
-This creates or updates the database using the included EF Core migrations.
-
-### 4. Run the API
-
-```bash
 dotnet run --project Entersoftone_Assessment.Api --launch-profile https
 ```
 
-Open the Swagger UI at the HTTPS address configured in `launchSettings.json`, followed by `/swagger`.
+The Development environment also applies migrations automatically during application startup. Swagger UI is available at **https://localhost:7020/swagger** when using the included HTTPS launch profile.
 
-For example:
+### Development Seed Data
 
-```text
-https://localhost:7020/swagger
-```
+The first Development startup initializes sample data:
 
-The Swagger UI and development database seeding are enabled in the Development environment.
+- 3 departments: IT, Human Resources, and Finance
+- 6 sample employees
+- 3 sample projects and their employee assignments
 
-### 5. Development Seed Data
+Seeding checks existing records to prevent duplicates. Deleted sample records may be recreated on subsequent Development startups.
 
-On startup in Development, the application initializes sample data if required.
+## Postman Collection
 
-The initial dataset includes:
+Import [`postman/Entersoftone_Assessment.postman_collection.json`](postman/Entersoftone_Assessment.postman_collection.json) into Postman.
 
-- 3 departments: IT, Human Resources, and Finance.
-- 6 sample employees.
-- 3 sample projects.
-- Employee-to-project assignments.
+Set the collection-level `baseUrl` variable to `http://localhost:8080` for Docker, or `https://localhost:7020` when using the local HTTPS launch profile.
 
-Seeding checks existing records to avoid duplicate seed data during subsequent executions. In Development, deleted sample records may be recreated on the next application startup.
+The collection contains **15 CRUD requests** and **3 additional negative test cases**. Run the folders in order: **01 - Setup / Create**, **02 - Employees**, **03 - Projects**, **04 - Departments**, then optionally **05 - Negative Tests**.
+
+The create requests save `departmentId`, `projectId`, and `employeeId` to collection variables. Subsequent requests reuse those IDs for GET, PUT, and DELETE. The sample workflow operates on records created by the collection rather than deleting seeded records.
 
 
 ## Automated Testing
@@ -299,7 +299,6 @@ Potential enhancements include:
 
 - Enhanced pagination responses with total record counts.
 - Additional automated test coverage.
-- Docker Compose for simplified database setup.
 - Soft delete and audit logging.
 - Authentication and role-based authorization.
 
